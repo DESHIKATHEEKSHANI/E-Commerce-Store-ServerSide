@@ -1,11 +1,59 @@
 // controllers/productController.js
 import Product from '../models/Product.js';
 
-// @desc    Get all products
+// @desc    Get all products with optional filters (featured, sort, limit)
+// @desc    Get all products with optional filters (category, price range, sort, limit)
 export const getProducts = async (req, res) => {
-  const products = await Product.find({});
-  res.json(products);
+  try {
+    const { featured, sort, limit, category, priceMin, priceMax } = req.query;
+
+    const query = {};
+
+    // Featured filter
+    if (featured === 'true') {
+      query.featured = true;
+    }
+
+    // Category filter
+    if (category) {
+      query.category = category;
+    }
+
+    // Price Range filter
+    if (priceMin || priceMax) {
+      query.price = {};
+      if (priceMin) {
+        query.price.$gte = Number(priceMin);
+      }
+      if (priceMax) {
+        query.price.$lte = Number(priceMax);
+      }
+    }
+
+    // Build the Mongoose query
+    let productQuery = Product.find(query);
+
+    // Sorting
+    if (sort) {
+      productQuery = productQuery.sort(sort);
+    }
+
+    // Limit
+    const limitNum = limit ? parseInt(limit) : 0;
+    if (limitNum > 0) {
+      productQuery = productQuery.limit(limitNum);
+    }
+
+    const products = await productQuery.exec();
+
+    res.json({ products }); // Wrap as { products } to match frontend
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ message: 'Server error while fetching products' });
+  }
 };
+
+
 
 // @desc    Get single product
 export const getProductById = async (req, res) => {
