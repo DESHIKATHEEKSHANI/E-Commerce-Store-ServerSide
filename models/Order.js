@@ -27,11 +27,11 @@ const shippingAddressSchema = mongoose.Schema(
 
 const orderSchema = mongoose.Schema(
   {
-    user: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      required: true, 
-      ref: 'User' 
-    },
+    user: {
+       type: mongoose.Schema.Types.ObjectId,
+       required: true,
+       ref: 'User'
+     },
     orderItems: [orderItemSchema],
     shippingAddress: shippingAddressSchema,
     paymentMethod: { type: String, required: true },
@@ -47,6 +47,16 @@ const orderSchema = mongoose.Schema(
     totalPrice: { type: Number, required: true },
     isPaid: { type: Boolean, default: false },
     paidAt: { type: Date },
+    isDelivered: { type: Boolean, default: false },
+    deliveredAt: { type: Date },
+    isCancelled: { type: Boolean, default: false },
+    cancelledAt: { type: Date },
+    status: { 
+      type: String, 
+      enum: ['processing', 'shipped', 'delivered', 'cancelled'], 
+      default: 'processing' 
+    },
+    trackingNumber: { type: String },
   },
   { timestamps: true }
 );

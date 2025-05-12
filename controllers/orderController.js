@@ -133,7 +133,7 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   res.json(orders);
 });
 
-// @desc    Update order status (admin)
+// @desc    Update order status (admin only)
 // @route   PUT /api/orders/:id/status
 // @access  Private/Admin
 export const updateOrderStatus = asyncHandler(async (req, res) => {
@@ -145,18 +145,24 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     throw new Error('Order not found');
   }
 
-  // Update status fields based on admin selection
-  order.status = status;
+  // Update status-related fields
+  order.status = status; // Optional explicit status field if your model supports it
 
   if (status === 'delivered') {
     order.isDelivered = true;
     order.deliveredAt = Date.now();
   } else if (status === 'cancelled') {
     order.isCancelled = true;
-  } else {
-    // Reset flags if status is not delivered/cancelled
-    order.isDelivered = false;
-    order.isCancelled = false;
+  }
+
+  // Optional: mark as paid if moving out of processing
+  if (status !== 'processing') {
+    order.isPaid = true;
+    order.paidAt = order.paidAt || Date.now();
+    order.paymentResult = {
+      ...order.paymentResult,
+      status: status === 'processing' ? 'pending' : 'completed',
+    };
   }
 
   const updatedOrder = await order.save();
