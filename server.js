@@ -5,6 +5,7 @@ import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 
 import cors from 'cors';
 
@@ -24,6 +25,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/categories', categoryRoutes);
 
 app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 app.get('/', (req, res) => res.send('API is running...'));
